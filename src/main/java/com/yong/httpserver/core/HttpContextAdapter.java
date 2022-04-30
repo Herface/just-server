@@ -6,7 +6,7 @@ import com.yong.httpserver.context.HttpServeContextInternal;
 import com.yong.httpserver.context.ProcessingContext;
 import com.yong.httpserver.context.ProcessingStateEnum;
 import com.yong.httpserver.context.DefaultHttpServeContextInternal;
-import com.yong.httpserver.web.MimeType;
+import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.dispatcher.HttpRequestDispatcher;
 import com.yong.httpserver.web.dispatcher.RequestDispatcher;
 import com.yong.httpserver.web.enums.StatusCode;

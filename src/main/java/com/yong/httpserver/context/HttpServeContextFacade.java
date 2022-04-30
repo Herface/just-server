@@ -1,6 +1,6 @@
 package com.yong.httpserver.context;
 
-import com.yong.httpserver.web.MimeType;
+import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.mime.FormFile;
 import com.yong.httpserver.web.session.Cookie;

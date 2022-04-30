@@ -1,4 +1,4 @@
-package com.yong.httpserver.web;
+package com.yong.httpserver.web.mime;
 
 import java.util.HashMap;
 import java.util.Map;

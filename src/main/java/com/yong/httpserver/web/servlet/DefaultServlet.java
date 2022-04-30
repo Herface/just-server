@@ -3,7 +3,7 @@ package com.yong.httpserver.web.servlet;
 import com.yong.httpserver.context.HttpServeContext;
 import com.yong.httpserver.context.HttpServeContextInternal;
 import com.yong.httpserver.core.ChannelWrapper;
-import com.yong.httpserver.web.MimeType;
+import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.enums.HttpVersion;
 import com.yong.httpserver.web.msg.HeaderBuilder;
