@@ -1,4 +1,13 @@
-## Simple and easy-to-use aio based http server
+## Simple and easy-to-use java aio based http server
+
+## Do not use in a production environment
+
+- ✅ ant-style request dispatching
+- ✅ session/cookie
+- ✅ websocket
+- ✅ filter chain
+- ✅ file uploading
+- ✅ static content serving
 
 ## Usage
 
@@ -8,7 +17,7 @@ package com.yong.httpserver.servlet;
 @RequestMapping(path = "/user")
 public class TestServlet11 {
     @RequestMapping(path = "", methods = {RequestMethod.GET})
-    public void test(HttpServeContext context) {
+    public void test(HttpServingContext context) {
         context.write("GET /user");
     }
 }
