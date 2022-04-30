@@ -8,6 +8,7 @@
 - ✅ filter chain
 - ✅ file uploading
 - ✅ static content serving
+- ❌ http2
 
 ## Usage
 
