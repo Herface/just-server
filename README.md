@@ -10,6 +10,10 @@
 - ✅ static content serving
 - ❌ http2
 
+## Requirement
+
+- JDK17+
+
 ## Usage
 
 ```java
