@@ -12,8 +12,7 @@ public class TestServlet11 {
         context.write("GET /user");
     }
 }
-
-    HttpServerBuilder builder = new HttpServerBuilder();
+HttpServerBuilder builder = new HttpServerBuilder();
 builder.webConfig(webConfig->webConfig.host("0.0.0.0")
         .port(8080)
         .basePackage("com.yong.httpserver.servlet")
