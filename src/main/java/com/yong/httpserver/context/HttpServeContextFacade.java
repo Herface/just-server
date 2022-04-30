@@ -1,19 +1,19 @@
 package com.yong.httpserver.context;
 
-import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.mime.FormFile;
+import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.session.Cookie;
 import com.yong.httpserver.web.session.Session;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class HttpServeContextFacade implements HttpServeContext {
+public class HttpServeContextFacade implements HttpServingContext {
 
-    private final HttpServeContext contextInternal;
+    private final HttpServingContext contextInternal;
 
-    public HttpServeContextFacade(HttpServeContext context) {
+    public HttpServeContextFacade(HttpServingContext context) {
         this.contextInternal = context;
     }
 

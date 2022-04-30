@@ -1,8 +1,8 @@
 package com.yong.httpserver.context;
 
 import com.yong.httpserver.core.ChannelWrapper;
-import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.mime.FormFile;
+import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.session.Cookie;
 import com.yong.httpserver.web.session.Session;
 import com.yong.httpserver.web.session.SessionManager;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public interface HttpServeContextInternal extends HttpServeContext {
+public interface HttpServeContextInternal extends HttpServingContext {
 
     ByteArrayOutputStream getBodyStream();
 

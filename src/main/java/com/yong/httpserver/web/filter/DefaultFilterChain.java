@@ -1,6 +1,6 @@
 package com.yong.httpserver.web.filter;
 
-import com.yong.httpserver.context.HttpServeContext;
+import com.yong.httpserver.context.HttpServingContext;
 import com.yong.httpserver.web.servlet.Servlet;
 
 import java.util.List;
@@ -13,9 +13,9 @@ public class DefaultFilterChain implements FilterChain {
 
     private final Servlet originServlet;
 
-    private final HttpServeContext context;
+    private final HttpServingContext context;
 
-    public DefaultFilterChain(HttpServeContext context, Servlet originServlet, List<Filter> filterList) {
+    public DefaultFilterChain(HttpServingContext context, Servlet originServlet, List<Filter> filterList) {
         this.filterList = filterList;
         this.context = context;
         this.originServlet = originServlet;

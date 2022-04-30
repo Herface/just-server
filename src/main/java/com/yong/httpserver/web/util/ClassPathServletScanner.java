@@ -1,6 +1,6 @@
 package com.yong.httpserver.web.util;
 
-import com.yong.httpserver.context.HttpServeContext;
+import com.yong.httpserver.context.HttpServingContext;
 import com.yong.httpserver.web.servlet.RequestMapping;
 import com.yong.httpserver.web.servlet.ServletMapping;
 import com.yong.httpserver.web.servlet.ServletMethod;
@@ -74,7 +74,7 @@ public class ClassPathServletScanner implements ServletScanner {
         for (Method method : methods) {
             RequestMapping annotation = method.getAnnotation(RequestMapping.class);
             if (annotation != null) {
-                if (method.getParameterCount() == 1 && method.getParameterTypes()[0] == HttpServeContext.class) {
+                if (method.getParameterCount() == 1 && method.getParameterTypes()[0] == HttpServingContext.class) {
                     String finalPath = adjust(basePath) + adjust(annotation.path());
                     if (target == null) {
                         target = constructor.newInstance();

@@ -1,6 +1,6 @@
 package com.yong.httpserver.web.servlet;
 
-import com.yong.httpserver.context.HttpServeContext;
+import com.yong.httpserver.context.HttpServingContext;
 
 import java.lang.reflect.Method;
 
@@ -16,7 +16,7 @@ public class ServletMethod implements Servlet {
     }
 
     @Override
-    public void serve(HttpServeContext context) {
+    public void serve(HttpServingContext context) {
         try {
             method.invoke(target, context);
         } catch (Exception e) {

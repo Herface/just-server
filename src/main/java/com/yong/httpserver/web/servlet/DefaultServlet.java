@@ -1,11 +1,11 @@
 package com.yong.httpserver.web.servlet;
 
-import com.yong.httpserver.context.HttpServeContext;
 import com.yong.httpserver.context.HttpServeContextInternal;
+import com.yong.httpserver.context.HttpServingContext;
 import com.yong.httpserver.core.ChannelWrapper;
-import com.yong.httpserver.web.mime.MimeType;
-import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.enums.HttpVersion;
+import com.yong.httpserver.web.enums.StatusCode;
+import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.msg.HeaderBuilder;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class DefaultServlet implements Servlet {
     private static final String DEFAULT_INDEX = "index.html";
 
     @Override
-    public void serve(HttpServeContext context) {
+    public void serve(HttpServingContext context) {
         try {
             doServe(context);
         } catch (Exception e) {
@@ -38,7 +38,7 @@ public class DefaultServlet implements Servlet {
     }
 
 
-    private void doServe(HttpServeContext context) {
+    private void doServe(HttpServingContext context) {
         HttpServeContextInternal internalHttpServeContext = (HttpServeContextInternal) context;
         String path = context.getPath();
         if ("/".equals(path)) {
@@ -136,7 +136,7 @@ public class DefaultServlet implements Servlet {
         wrapper.write(map);
     }
 
-    private void notModified(HttpServeContext context) {
+    private void notModified(HttpServingContext context) {
         context.setStatusCode(StatusCode.NOT_MODIFIED);
     }
 
@@ -152,7 +152,7 @@ public class DefaultServlet implements Servlet {
         return null;
     }
 
-    private void notFoundError(HttpServeContext context) {
+    private void notFoundError(HttpServingContext context) {
         context.setStatusCode(StatusCode.NOT_FOUND);
     }
 
