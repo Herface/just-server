@@ -3,7 +3,6 @@ package com.yong.httpserver.core;
 import com.yong.httpserver.web.filter.Filter;
 import com.yong.httpserver.web.filter.FilterMapping;
 import com.yong.httpserver.web.handler.ExceptionHandler;
-import com.yong.httpserver.web.session.DefaultSessionManager;
 import com.yong.httpserver.web.session.SessionManager;
 import com.yong.httpserver.web.ws.WebSocketEventHandler;
 

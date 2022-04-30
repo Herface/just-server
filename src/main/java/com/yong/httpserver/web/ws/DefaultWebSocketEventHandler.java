@@ -2,7 +2,6 @@ package com.yong.httpserver.web.ws;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 public class DefaultWebSocketEventHandler implements WebSocketEventHandler {
 

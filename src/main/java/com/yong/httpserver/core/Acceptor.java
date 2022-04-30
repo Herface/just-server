@@ -1,6 +1,5 @@
 package com.yong.httpserver.core;
 
-import com.yong.httpserver.context.Context;
 
 public interface Acceptor extends Lifecycle {
 

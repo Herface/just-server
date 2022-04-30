@@ -3,7 +3,6 @@ package com.yong.httpserver.web.filter;
 import com.yong.httpserver.context.HttpServeContext;
 import com.yong.httpserver.web.servlet.Servlet;
 
-import java.nio.channels.FileChannel;
 import java.util.List;
 
 public class DefaultFilterChain implements FilterChain {
