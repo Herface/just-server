@@ -14,6 +14,9 @@ public class ServletMappingComparator implements Comparator<ServletMapping> {
     public int compare(ServletMapping o1, ServletMapping o2) {
         int compare = comparator.compare(o1.getPattern(), o2.getPattern());
         if (compare == 0) {
+            if (!o1.getPattern().equals(o2.getPattern())) {
+                return -1;
+            }
             Set<RequestMethod> methodSet1 = o1.getSupportedMethods();
             Set<RequestMethod> methodSet2 = o2.getSupportedMethods();
             if (methodSet1.size() != methodSet2.size()) {
