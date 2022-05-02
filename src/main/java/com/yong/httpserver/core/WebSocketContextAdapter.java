@@ -12,7 +12,10 @@ import com.yong.httpserver.web.ws.WebSocketEventHandler;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class WebSocketContextAdapter implements ContextAdapter {
 
@@ -40,11 +43,6 @@ public class WebSocketContextAdapter implements ContextAdapter {
         executor = new ThreadPoolExecutor(16, 32, 1, TimeUnit.HOURS,
                 new ArrayBlockingQueue<>(200), (r, executor1) -> {
             WebSocketProcessingContext context = ContextHolder.get();
-            ChannelWrapper channel = context.getChannel();
-            Session session = sessionMap.remove(channel.id);
-            if (session != null) {
-                handler.onClosed(session);
-            }
             close(context);
         });
     }
@@ -91,7 +89,10 @@ public class WebSocketContextAdapter implements ContextAdapter {
         try {
             channel.write(buffer);
             channel.close();
-            sessionMap.remove(channel.id);
+            Session session = sessionMap.remove(channel.id);
+            if (session != null) {
+                handler.onClosed(session);
+            }
         } finally {
             channel.unlock();
         }
@@ -111,10 +112,7 @@ public class WebSocketContextAdapter implements ContextAdapter {
             ChannelWrapper channel = context.getChannel();
             Session session = sessionMap.get(channel.id);
             if (context.getMessageType() == WebSocketParser.FRAME_CLOSE) {
-                if (session != null) {
-                    handler.onClosed(session);
-                    close(context);
-                }
+                close(context);
             } else if (context.getMessageType() == WebSocketParser.FRAME_OPEN) {
                 session = new Session(channel);
                 sessionMap.putIfAbsent(channel.id, session);
