@@ -1,7 +1,7 @@
 package com.yong.httpserver.core;
 
 
-public interface Acceptor extends Lifecycle {
+public interface Acceptor extends Runnable, Lifecycle {
 
 
     void setHost(String host);

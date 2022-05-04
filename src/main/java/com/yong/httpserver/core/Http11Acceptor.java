@@ -2,10 +2,12 @@ package com.yong.httpserver.core;
 
 import com.yong.httpserver.codec.WebSocketParser;
 import com.yong.httpserver.codec.WebSocketProcessingStatusEnum;
-import com.yong.httpserver.context.*;
-
-import com.yong.httpserver.web.enums.StatusCode;
+import com.yong.httpserver.context.Http11ProcessingContext;
+import com.yong.httpserver.context.ProcessingContext;
+import com.yong.httpserver.context.ProcessingStateEnum;
+import com.yong.httpserver.context.WebSocketProcessingContext;
 import com.yong.httpserver.web.enums.HttpVersion;
+import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.msg.HeaderBuilder;
 import com.yong.httpserver.web.util.ContextHolder;
 
@@ -27,7 +29,7 @@ import java.util.concurrent.locks.LockSupport;
 
 public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousSocketChannel, Void> {
 
-    private final Semaphore maxConnection = new Semaphore(1024);
+    private Semaphore connectionSemaphore;
 
     private AsynchronousServerSocketChannel serverSocketChannel;
 
@@ -45,9 +47,16 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
 
     private int port;
 
+    private int maxConnection;
+
     private ThreadPoolExecutor acceptorThread;
 
     public Http11Acceptor() {
+    }
+
+
+    public void setMaxConnection(int maxConnection) {
+        this.maxConnection = maxConnection;
     }
 
     @Override
@@ -67,7 +76,9 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
 
     @Override
     public void completed(AsynchronousSocketChannel channel, Void attachment) {
-        serverSocketChannel.accept(null, this);
+        if (connectionSemaphore.availablePermits() > 0) {
+            connectionSemaphore.tryAcquire();
+        }
         ChannelWrapper channelWrapper = new ChannelWrapper(channel);
         Processor processor = processorQueue.poll();
         if (processor == null) {
@@ -75,7 +86,11 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
         }
         channelWrapper.setProcessor(processor);
         channel.read(channelWrapper.getBuffer(), channelWrapper, processor);
-
+        if (connectionSemaphore.availablePermits() <= 0) {
+            executor.execute(this);
+        } else {
+            serverSocketChannel.accept(null, this);
+        }
     }
 
     private Processor createProcessor() {
@@ -84,7 +99,7 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
 
     @Override
     public void failed(Throwable exc, Void attachment) {
-
+        exc.printStackTrace();
     }
 
     @Override
@@ -92,6 +107,15 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
         initExecutor();
         initChannel();
         initAdapter();
+        initConnectionLimit();
+    }
+
+    private void initConnectionLimit() {
+        if (maxConnection > 0) {
+            connectionSemaphore = new Semaphore(maxConnection);
+        } else {
+            connectionSemaphore = new Semaphore(1024);
+        }
     }
 
     private void initAdapter() {
@@ -129,7 +153,6 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
 
     @Override
     public void close() {
-
         try {
             serverSocketChannel.close();
             acceptorThread.shutdownNow();
@@ -152,6 +175,17 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
         return null;
     }
 
+    @Override
+    public void run() {
+        try {
+            connectionSemaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return;
+        }
+        serverSocketChannel.accept(null, this);
+    }
+
     class Http11Processor implements Processor {
 
         private Http11ProcessingContext context;
@@ -163,6 +197,7 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
 
         @Override
         public void recycle() {
+            connectionSemaphore.release();
             reset();
             processorQueue.offer(this);
         }
@@ -243,6 +278,7 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
         public void recycle() {
             reset();
             wsProcessorQueue.offer(this);
+            connectionSemaphore.release();
         }
 
         @Override
