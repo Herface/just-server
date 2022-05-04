@@ -21,7 +21,7 @@ public class HttpServerBuilder {
     private Acceptor acceptor;
 
 
-    public HttpServerBuilder webConfig(Consumer<WebConfig> consumer) {
+    public HttpServerBuilder http(Consumer<WebConfig> consumer) {
         if (webConfig == null) {
             webConfig = new WebConfig();
         }
@@ -49,7 +49,7 @@ public class HttpServerBuilder {
         List<FilterMapping> filterMappings = new ArrayList<>();
         SessionManager sessionManager;
         ExceptionHandler exceptionHandler;
-
+        int maxConnection;
         public WebConfig host(String host) {
             this.host = host;
             return this;
@@ -94,6 +94,12 @@ public class HttpServerBuilder {
             exceptionHandler = handler;
             return this;
         }
+
+        public WebConfig maxConnection(int maxConnection) {
+            this.maxConnection = maxConnection;
+            return this;
+        }
+
     }
 
     public static class WebSocketConfig {
@@ -138,11 +144,13 @@ public class HttpServerBuilder {
     }
 
     private void buildAcceptor() {
-        acceptor = new Http11Acceptor();
-        acceptor.setHost(webConfig.host);
-        acceptor.setPort(webConfig.port);
+        Http11Acceptor acceptor = new Http11Acceptor();
+        this.acceptor = acceptor;
+        this.acceptor.setHost(webConfig.host);
+        this.acceptor.setPort(webConfig.port);
+        acceptor.setMaxConnection(webConfig.maxConnection);
         buildHttpAdapter();
-        server.acceptor = acceptor;
+        server.acceptor = this.acceptor;
     }
 
     private void buildHttpAdapter() {

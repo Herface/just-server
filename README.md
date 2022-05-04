@@ -27,7 +27,7 @@ public class TestServlet11 {
     }
 }
 HttpServerBuilder builder = new HttpServerBuilder();
-builder.webConfig(webConfig->webConfig.host("0.0.0.0")
+builder.http(webConfig->webConfig.host("0.0.0.0")
         .port(8080)
         .basePackage("com.yong.httpserver.servlet")
         .staticPath("path-to-resource")
