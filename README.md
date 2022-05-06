@@ -8,7 +8,7 @@
 - ✅ filter chain
 - ✅ file uploading
 - ✅ static content serving
-- ❌ http2
+- ❌ http2(coming soon...)
 
 ## Requirement
 
