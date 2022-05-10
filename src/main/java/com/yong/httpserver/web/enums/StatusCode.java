@@ -3,6 +3,8 @@ package com.yong.httpserver.web.enums;
 public enum StatusCode {
     SWITCHING_PROTOCOLS(101, "Switching Protocols"),
     OK(200, "OK"),
+    NO_CONTENT(204, "No Content"),
+
     NOT_FOUND(404, "Not Found"),
     BAD_REQUEST(400, "Bad Request"),
     INTERNAL_ERROR(500, "Internal Error"),

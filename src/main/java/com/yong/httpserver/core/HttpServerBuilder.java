@@ -4,6 +4,7 @@ import com.yong.httpserver.web.filter.Filter;
 import com.yong.httpserver.web.filter.FilterMapping;
 import com.yong.httpserver.web.handler.ExceptionHandler;
 import com.yong.httpserver.web.session.SessionManager;
+import com.yong.httpserver.web.ws.DefaultWebSocketEventHandler;
 import com.yong.httpserver.web.ws.WebSocketEventHandler;
 
 import java.util.ArrayList;
@@ -12,13 +13,13 @@ import java.util.function.Consumer;
 
 public class HttpServerBuilder {
 
-    private WebConfig webConfig;
+    WebConfig webConfig;
 
-    private WebSocketConfig webSocketConfig;
+    WebSocketConfig webSocketConfig;
 
-    private HttpServer server;
+    CorsConfig corsConfig;
 
-    private Acceptor acceptor;
+
 
 
     public HttpServerBuilder http(Consumer<WebConfig> consumer) {
@@ -29,17 +30,28 @@ public class HttpServerBuilder {
         return this;
     }
 
-    public void enableWebSocket(Consumer<WebSocketConfig> consumer) {
+    public HttpServerBuilder enableWebSocket(Consumer<WebSocketConfig> consumer) {
         if (webSocketConfig == null) {
             webSocketConfig = new WebSocketConfig();
         }
         consumer.accept(webSocketConfig);
+        return this;
     }
+
+    public HttpServerBuilder cors(Consumer<CorsConfig> consumer) {
+        if (corsConfig == null) {
+            corsConfig = new CorsConfig();
+        }
+        consumer.accept(corsConfig);
+        return this;
+    }
+
 
     public static class WebConfig {
         WebConfig() {
         }
 
+        CorsConfig corsConfig;
         String host = "0.0.0.0";
         int port = 8080;
         String staticPath = "static";
@@ -50,6 +62,7 @@ public class HttpServerBuilder {
         SessionManager sessionManager;
         ExceptionHandler exceptionHandler;
         int maxConnection;
+
         public WebConfig host(String host) {
             this.host = host;
             return this;
@@ -100,6 +113,38 @@ public class HttpServerBuilder {
             return this;
         }
 
+        public WebConfig corsConfig(Consumer<CorsConfig> consumer) {
+            if (corsConfig == null) {
+                corsConfig = new CorsConfig();
+            }
+            consumer.accept(corsConfig);
+            return this;
+        }
+
+    }
+
+    public static class CorsConfig {
+        String allowOrigin = "*";
+        String allowMethods = "*";
+        String allowHeaders = "*";
+
+        public CorsConfig allowOrigin(String allowOrigin) {
+            this.allowOrigin = allowOrigin;
+            return this;
+        }
+
+        public CorsConfig allowMethods(String allowMethods) {
+            this.allowMethods = allowMethods;
+            return this;
+        }
+
+
+        public CorsConfig allowHeaders(String allowHeaders) {
+            this.allowHeaders = allowHeaders;
+            return this;
+        }
+
+
     }
 
     public static class WebSocketConfig {
@@ -107,7 +152,7 @@ public class HttpServerBuilder {
         }
 
         String path = "/ws";
-        WebSocketEventHandler eventHandler;
+        WebSocketEventHandler eventHandler = new DefaultWebSocketEventHandler();
         int maxMsgSize = 4096;
 
         public WebSocketConfig path(String path) {
@@ -127,44 +172,9 @@ public class HttpServerBuilder {
     }
 
     public HttpServer build() {
-        server = new HttpServer();
-        buildAcceptor();
-        buildWebSocket();
-        return server;
+        return new HttpServer(this);
     }
 
-    private void buildWebSocket() {
-        if (webSocketConfig == null) {
-            return;
-        }
-        WebSocketContextAdapter contextAdapter = new WebSocketContextAdapter();
-        contextAdapter.setHandler(webSocketConfig.eventHandler);
-        contextAdapter.setMaxMsgSize(webSocketConfig.maxMsgSize);
-        acceptor.addAdapter(contextAdapter);
-    }
 
-    private void buildAcceptor() {
-        Http11Acceptor acceptor = new Http11Acceptor();
-        this.acceptor = acceptor;
-        this.acceptor.setHost(webConfig.host);
-        this.acceptor.setPort(webConfig.port);
-        acceptor.setMaxConnection(webConfig.maxConnection);
-        buildHttpAdapter();
-        server.acceptor = this.acceptor;
-    }
 
-    private void buildHttpAdapter() {
-        HttpContextAdapter adapter = new HttpContextAdapter();
-        if (webSocketConfig != null) {
-            adapter.setWsPath(webSocketConfig.path);
-        }
-        adapter.setBaseServletPackages(webConfig.basePackages);
-        adapter.setExceptionHandler(webConfig.exceptionHandler);
-        adapter.setFilterMappings(webConfig.filterMappings);
-        adapter.setMaxMsgSize(webConfig.maxMsgSize);
-        adapter.setMaxUploadSize(webConfig.maxUploadFileSize);
-        adapter.setSessionManager(webConfig.sessionManager);
-        adapter.setStaticPath(webConfig.staticPath);
-        acceptor.addAdapter(adapter);
-    }
 }

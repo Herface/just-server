@@ -1,27 +1,17 @@
 package com.yong.httpserver.core;
 
 import com.yong.httpserver.codec.Http11Parser;
-import com.yong.httpserver.context.Http11ProcessingContext;
-import com.yong.httpserver.context.HttpServeContextInternal;
-import com.yong.httpserver.context.ProcessingContext;
-import com.yong.httpserver.context.ProcessingStateEnum;
-import com.yong.httpserver.context.DefaultHttpServeContextInternal;
-import com.yong.httpserver.web.mime.MimeType;
-import com.yong.httpserver.web.dispatcher.HttpRequestDispatcher;
+import com.yong.httpserver.context.*;
 import com.yong.httpserver.web.dispatcher.RequestDispatcher;
-import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.enums.HttpVersion;
+import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.filter.FilterMapping;
 import com.yong.httpserver.web.handler.ExceptionHandler;
 import com.yong.httpserver.web.mime.FormFile;
+import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.msg.HeaderBuilder;
-import com.yong.httpserver.web.servlet.ServletMapping;
 import com.yong.httpserver.web.session.Cookie;
-import com.yong.httpserver.web.session.DefaultSessionManager;
 import com.yong.httpserver.web.session.SessionManager;
-import com.yong.httpserver.web.util.ClassPathServletScanner;
-import com.yong.httpserver.web.util.ServletMappingComparator;
-import com.yong.httpserver.web.util.ServletScanner;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -50,7 +40,6 @@ public class HttpContextAdapter implements ContextAdapter {
 
     private SessionManager sessionManager;
 
-    private List<String> baseServletPackages = new ArrayList<>();
 
     private String staticPath;
 
@@ -74,9 +63,7 @@ public class HttpContextAdapter implements ContextAdapter {
         this.filterMappings = filterMappings;
     }
 
-    public void setBaseServletPackages(List<String> baseServletPackages) {
-        this.baseServletPackages = baseServletPackages;
-    }
+
 
     public void setMaxUploadSize(int maxUploadSize) {
         this.maxUploadSize = maxUploadSize;
@@ -89,6 +76,15 @@ public class HttpContextAdapter implements ContextAdapter {
     @Override
     public boolean support(ProcessingContext context) {
         return context instanceof Http11ProcessingContext;
+    }
+
+
+    public RequestDispatcher getDispatcher() {
+        return dispatcher;
+    }
+
+    public void setDispatcher(RequestDispatcher dispatcher) {
+        this.dispatcher = dispatcher;
     }
 
     @Override
@@ -370,39 +366,12 @@ public class HttpContextAdapter implements ContextAdapter {
     public void init() {
         http11Parser = new Http11Parser();
         http11Parser.setMaxMsgSize(maxMsgSize);
-        initDispatcher();
-        initSessionManager();
-    }
 
+    }
 
     @Override
     public void start() {
         sessionManager.start();
     }
 
-    private void initSessionManager() {
-        if (sessionManager == null) {
-            sessionManager = new DefaultSessionManager();
-        }
-    }
-
-    private void initDispatcher() {
-        HttpRequestDispatcher dispatcher = new HttpRequestDispatcher();
-        ServletScanner scanner = new ClassPathServletScanner();
-        Set<ServletMapping> servletMappingSet = new TreeSet<>(new ServletMappingComparator());
-        for (String basePackage : baseServletPackages) {
-            List<ServletMapping> mappings = scanner.scan(basePackage);
-            for (ServletMapping mapping : mappings) {
-                if (servletMappingSet.contains(mapping)) {
-                    throw new RuntimeException("ambiguous request pattern: " + mapping.getPattern());
-                }
-                servletMappingSet.add(mapping);
-            }
-        }
-        dispatcher.setServletMapping(servletMappingSet);
-        dispatcher.setFilterMapping(filterMappings);
-        dispatcher.setExceptionHandler(exceptionHandler);
-        dispatcher.setStaticPath(staticPath);
-        this.dispatcher = dispatcher;
-    }
 }

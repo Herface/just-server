@@ -1,6 +1,5 @@
 package com.yong.httpserver.core;
 
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -9,11 +8,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * wrap underlying socket channel
+ */
 public class ChannelWrapper {
 
     public final String id;
-
-    private ByteBuffer buffer;
 
     private AsynchronousSocketChannel channel;
 
@@ -21,15 +21,14 @@ public class ChannelWrapper {
 
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    private boolean webSocket;
-
     private final ReentrantLock lock = new ReentrantLock();
 
     public ByteBuffer getBuffer() {
-        return buffer;
+        return processor.getBuffer();
     }
 
     public void readyForRead() {
+        ByteBuffer buffer = processor.getBuffer();
         if (buffer.position() != 0) {
             buffer.flip();
         }
@@ -39,16 +38,9 @@ public class ChannelWrapper {
         this.processor = processor;
     }
 
-
     public ChannelWrapper(AsynchronousSocketChannel channel) {
         this.channel = channel;
         this.id = UUID.randomUUID().toString();
-        buffer = ByteBuffer.allocate(4096);
-    }
-
-
-    public void reset() {
-        processor.reset();
     }
 
 
@@ -102,10 +94,11 @@ public class ChannelWrapper {
 
 
     public void continueRead() {
+        ByteBuffer buffer = getBuffer();
         if (closed.getAcquire()) {
             return;
         }
-        if (buffer.hasRemaining()) {
+        if (buffer.position() != 0 && buffer.hasRemaining()) {
             buffer.compact();
         } else {
             buffer.clear();

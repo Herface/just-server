@@ -56,7 +56,7 @@ public class HttpRequestDispatcher implements RequestDispatcher {
         List<ServletMapping> mappings = getServletMapping(path);
         ServletMapping mapping = mappings.stream()
                 .filter(servletMapping -> servletMapping.getSupportedMethods()
-                        .contains(requestMethod)).findFirst().orElse(null);
+                        .contains(requestMethod) || requestMethod == RequestMethod.OPTIONS).findFirst().orElse(null);
         if (mapping == null) {
             if (requestMethod != RequestMethod.GET) {
                 methodNotAllowedError(context);
@@ -93,6 +93,11 @@ public class HttpRequestDispatcher implements RequestDispatcher {
         this.filterMappings = mappings;
     }
 
+    public void addFilterMapping(FilterMapping mapping) {
+        this.filterMappings.add(mapping);
+        this.filterMappings.sort(new FilterMappingComparator());
+    }
+
     private void fallback(HttpServeContextInternal context, Exception e) {
         ByteArrayOutputStream outputStream = context.getBodyStream();
         outputStream.reset();
@@ -103,18 +108,6 @@ public class HttpRequestDispatcher implements RequestDispatcher {
         context.write(ByteBuffer.wrap(outputStream.toByteArray()));
     }
 
-    //    private void forward(String forwardUrl, HttpServeContextInternal context) {
-//        ServletMapping mapping = getServletMapping(forwardUrl);
-//        if (mapping == null) {
-//            defaultServlet.serve(context);
-//            return;
-//        }
-//        if (!mapping.getSupportedMethods().contains(RequestMethod.getMethod(context.getMethod()))) {
-//            methodNotAllowedError(context);
-//            return;
-//        }
-//        obtainFilterChain(context,mapping.getServlet()).next();
-//    }
     private FilterChain obtainFilterChain(HttpServingContext context, Servlet servlet) {
         String path = context.getPath();
         List<Filter> filters = getFilters(path);

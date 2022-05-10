@@ -5,7 +5,7 @@ import com.yong.httpserver.web.enums.RequestMethod;
 import com.yong.httpserver.web.servlet.RequestMapping;
 
 
-@RequestMapping(path = "/user")
+@RequestMapping(path = "/test")
 public class TestServlet11 {
 
     @RequestMapping(path = "", methods = {RequestMethod.GET})
@@ -13,7 +13,7 @@ public class TestServlet11 {
         context.write("GET /user");
     }
 
-    @RequestMapping(path = "{id}", methods = {RequestMethod.GET})
+    @RequestMapping(path = "{id}", methods = {RequestMethod.GET, RequestMethod.POST})
     public void test0(HttpServingContext context) {
         context.write("GET /user/" + context.getPathVar("id"));
 
@@ -33,5 +33,17 @@ public class TestServlet11 {
     public void test3(HttpServingContext context) {
         context.write("DELETE /user/{id}");
     }
+
+
+    @RequestMapping(path = "/v1", methods = {RequestMethod.GET})
+    public void test4(HttpServingContext context) {
+        context.write("USER /v1");
+    }
+
+    @RequestMapping(path = "/v2", methods = {RequestMethod.GET})
+    public void test5(HttpServingContext context) {
+        context.write("USER /v2");
+    }
+
 
 }

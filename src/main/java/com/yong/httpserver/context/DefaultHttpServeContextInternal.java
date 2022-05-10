@@ -1,9 +1,9 @@
 package com.yong.httpserver.context;
 
 import com.yong.httpserver.core.ChannelWrapper;
-import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.mime.FormFile;
+import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.session.Cookie;
 import com.yong.httpserver.web.session.Session;
 import com.yong.httpserver.web.session.SessionManager;
@@ -14,9 +14,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
-
 import java.nio.charset.StandardCharsets;
-
 import java.util.*;
 
 public class DefaultHttpServeContextInternal implements HttpServeContextInternal {
@@ -143,6 +141,11 @@ public class DefaultHttpServeContextInternal implements HttpServeContextInternal
     @Override
     public Cookie getCookie(String name) {
         return cookieMap.get(name);
+    }
+
+    @Override
+    public Map<String, String> getHeaderMap() {
+        return Collections.unmodifiableMap(headerMap);
     }
 
     @Override

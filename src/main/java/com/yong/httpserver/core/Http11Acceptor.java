@@ -51,8 +51,7 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
 
     private ThreadPoolExecutor acceptorThread;
 
-    public Http11Acceptor() {
-    }
+    public HttpServerBuilder.WebConfig config;
 
 
     public void setMaxConnection(int maxConnection) {
@@ -186,9 +185,12 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
         serverSocketChannel.accept(null, this);
     }
 
-    class Http11Processor implements Processor {
 
-        private Http11ProcessingContext context;
+    private void release() {
+        connectionSemaphore.release();
+    }
+
+    class Http11Processor extends AbstractProcessor<Http11ProcessingContext> {
 
 
         @Override
@@ -197,14 +199,9 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
 
         @Override
         public void recycle() {
-            connectionSemaphore.release();
-            reset();
+            super.recycle();
             processorQueue.offer(this);
-        }
-
-        @Override
-        public void reset() {
-            context = null;
+            release();
         }
 
         @Override
@@ -221,6 +218,8 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
             ProcessingStateEnum stateEnum = adapter.serve(context);
             if (stateEnum == ProcessingStateEnum.UPGRADING) {
                 doUpgrade(context);
+                processorQueue.offer(this);
+                super.recycle();
                 return;
             } else if (stateEnum == ProcessingStateEnum.DONE) {
                 reset();
@@ -261,7 +260,7 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
         }
     }
 
-    class WebSocketProcessor implements Processor {
+    class WebSocketProcessor extends AbstractProcessor<WebSocketProcessingContext> {
 
         ChannelWrapper channelWrapper;
 
@@ -269,30 +268,21 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
 
         private static final String WEBSOCKET_KEY = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-        private WebSocketProcessingContext context;
-
         WebSocketProcessor() {
         }
 
         @Override
         public void recycle() {
-            reset();
+            super.recycle();
+            channelWrapper = null;
             wsProcessorQueue.offer(this);
-            connectionSemaphore.release();
+            release();
         }
-
-        @Override
-        public void reset() {
-            context = null;
-
-        }
-
         @Override
         public void run() {
             handShake();
             channelWrapper.continueRead();
         }
-
         private void handShake() {
             String key = hashKey(shakeKey + WEBSOCKET_KEY);
             HeaderBuilder builder = new HeaderBuilder(HttpVersion.HTTP_11, StatusCode.SWITCHING_PROTOCOLS);
@@ -316,6 +306,7 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
 
         @Override
         public void completed(Integer result, ChannelWrapper channelWrapper) {
+            System.out.println(result);
             if (result == -1) {
                 if (channelWrapper.close()) {
                     propagate(WebSocketParser.FRAME_CLOSE);
@@ -361,6 +352,7 @@ public class Http11Acceptor implements Acceptor, CompletionHandler<AsynchronousS
 
         @Override
         public void failed(Throwable exc, ChannelWrapper attachment) {
+            exc.printStackTrace();
         }
     }
 }

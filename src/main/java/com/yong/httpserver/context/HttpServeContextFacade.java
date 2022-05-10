@@ -8,6 +8,7 @@ import com.yong.httpserver.web.session.Session;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 
 public class HttpServeContextFacade implements HttpServingContext {
 
@@ -21,6 +22,11 @@ public class HttpServeContextFacade implements HttpServingContext {
     public Cookie getCookie(String name) {
 
         return contextInternal.getCookie(name);
+    }
+
+    @Override
+    public Map<String, String> getHeaderMap() {
+        return contextInternal.getHeaderMap();
     }
 
     @Override

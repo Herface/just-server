@@ -8,11 +8,16 @@ import com.yong.httpserver.web.session.Session;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 
-
+/**
+ * context for a http request serving
+ */
 public interface HttpServingContext {
 
     Cookie getCookie(String name);
+
+    Map<String, String> getHeaderMap();
 
     void setCookie(Cookie cookie);
 
@@ -23,7 +28,6 @@ public interface HttpServingContext {
     String getHeader(String name);
 
     void setHeader(String name, String value);
-
 
     String getParam(String name);
 
@@ -58,7 +62,6 @@ public interface HttpServingContext {
     void forward(String url);
 
     Session getSession();
-
 
     AsyncContext startAsync();
 

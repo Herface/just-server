@@ -1,10 +1,10 @@
 package com.yong.httpserver.context;
 
 import com.yong.httpserver.core.ChannelWrapper;
-import com.yong.httpserver.web.mime.MimeType;
-import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.enums.HttpVersion;
+import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.mime.FormFile;
+import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.session.Cookie;
 import com.yong.httpserver.web.session.Session;
 
@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 public class DefaultAsyncContext implements AsyncContext {
 
@@ -63,6 +64,11 @@ public class DefaultAsyncContext implements AsyncContext {
     @Override
     public Cookie getCookie(String name) {
         return context.getCookie(name);
+    }
+
+    @Override
+    public Map<String, String> getHeaderMap() {
+        return context.getHeaderMap();
     }
 
     @Override

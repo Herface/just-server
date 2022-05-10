@@ -71,6 +71,7 @@ public class WebSocketContextAdapter implements ContextAdapter {
                 return ProcessingStateEnum.CONTINUE;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             close(webSocketProcessingContext);
             return ProcessingStateEnum.DONE;
         }
@@ -88,11 +89,11 @@ public class WebSocketContextAdapter implements ContextAdapter {
         channel.lock();
         try {
             channel.write(buffer);
-            channel.close();
             Session session = sessionMap.remove(channel.id);
             if (session != null) {
                 handler.onClosed(session);
             }
+            channel.close();
         } finally {
             channel.unlock();
         }
