@@ -37,6 +37,7 @@ public class TestServlet11 {
 
     @RequestMapping(path = "/v1", methods = {RequestMethod.GET})
     public void test4(HttpServingContext context) {
+//        context.setHeader("Content-Length", "0");
         context.write("USER /v1");
     }
 

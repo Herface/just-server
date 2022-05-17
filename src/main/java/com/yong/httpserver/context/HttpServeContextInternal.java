@@ -1,6 +1,7 @@
 package com.yong.httpserver.context;
 
 import com.yong.httpserver.core.ChannelWrapper;
+import com.yong.httpserver.core.io.ResponseOutputStream;
 import com.yong.httpserver.web.mime.FormFile;
 import com.yong.httpserver.web.mime.MimeType;
 import com.yong.httpserver.web.session.Cookie;
@@ -45,10 +46,10 @@ public interface HttpServeContextInternal extends HttpServingContext {
 
     void setSessionManager(SessionManager sessionManager);
 
-
     void setRawBody(ByteBuffer body);
 
     String getQueryString();
 
+    ResponseOutputStream getOutputStream();
 
 }

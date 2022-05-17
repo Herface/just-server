@@ -2,6 +2,7 @@ package com.yong.httpserver.core;
 
 import com.yong.httpserver.codec.Http11Parser;
 import com.yong.httpserver.context.*;
+import com.yong.httpserver.core.io.ResponseOutputStream;
 import com.yong.httpserver.web.dispatcher.RequestDispatcher;
 import com.yong.httpserver.web.enums.HttpVersion;
 import com.yong.httpserver.web.enums.StatusCode;
@@ -15,7 +16,6 @@ import com.yong.httpserver.web.session.SessionManager;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -136,19 +136,8 @@ public class HttpContextAdapter implements ContextAdapter {
         if (context.complete()) {
             return;
         }
-        ByteArrayOutputStream bodyStream = context.getBodyStream();
-        ByteArrayOutputStream headerStream = context.getHeaderStream();
-        StatusCode statusCode = context.getStatusCode();
-        ChannelWrapper channel = context.getChannel();
-        int size = bodyStream.size();
-        context.setHeader("Connection", "keep-alive");
-        context.setHeader("Content-Length", String.valueOf(size));
-        context.setHeader("Content-Type", context.getContentType().value);
-        String headLine = HttpVersion.HTTP_11.name + " " + statusCode.code + " " + statusCode.message + "\r\n";
-        channel.write(ByteBuffer.wrap(headLine.getBytes(StandardCharsets.UTF_8)));
-        channel.write(ByteBuffer.wrap(headerStream.toByteArray()));
-        channel.write(ByteBuffer.wrap("\r\n".getBytes(StandardCharsets.UTF_8)));
-        channel.write(ByteBuffer.wrap(bodyStream.toByteArray()));
+        ResponseOutputStream outputStream = context.getOutputStream();
+        context.getChannel().write(outputStream.toBuffer());
     }
 
 

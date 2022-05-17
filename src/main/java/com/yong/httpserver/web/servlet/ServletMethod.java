@@ -4,16 +4,7 @@ import com.yong.httpserver.context.HttpServingContext;
 
 import java.lang.reflect.Method;
 
-public class ServletMethod implements Servlet {
-
-    private Method method;
-
-    private Object target;
-
-    public ServletMethod(Method method, Object target) {
-        this.method = method;
-        this.target = target;
-    }
+public record ServletMethod(Method method, Object target) implements Servlet {
 
     @Override
     public void serve(HttpServingContext context) {

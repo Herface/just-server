@@ -2,19 +2,18 @@ package com.yong.httpserver.web.session;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class DefaultSessionManager implements SessionManager {
-
 
     private Map<String, Session> sessionMap = new ConcurrentHashMap<>();
 
     private ScheduledThreadPoolExecutor watchDog;
 
-
     public DefaultSessionManager() {
     }
-
 
     @Override
     public Session createSession() {

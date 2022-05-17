@@ -63,7 +63,6 @@ public class DefaultServlet implements Servlet {
             return;
         }
         etag = newEtag;
-        wrapper.lock();
         try (
                 FileChannel channel = FileChannel.open(p, StandardOpenOption.READ)
         ) {
@@ -87,8 +86,6 @@ public class DefaultServlet implements Servlet {
             e.printStackTrace();
             notFoundError(context);
             wrapper.close();
-        } finally {
-            wrapper.unlock();
         }
     }
 

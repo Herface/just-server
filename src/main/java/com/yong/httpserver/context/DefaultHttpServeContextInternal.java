@@ -1,6 +1,7 @@
 package com.yong.httpserver.context;
 
 import com.yong.httpserver.core.ChannelWrapper;
+import com.yong.httpserver.core.io.ResponseOutputStream;
 import com.yong.httpserver.web.enums.StatusCode;
 import com.yong.httpserver.web.mime.FormFile;
 import com.yong.httpserver.web.mime.MimeType;
@@ -10,8 +11,6 @@ import com.yong.httpserver.web.session.SessionManager;
 import com.yong.httpserver.web.util.JsonUtils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -27,17 +26,7 @@ public class DefaultHttpServeContextInternal implements HttpServeContextInternal
 
     private SessionManager sessionManager;
 
-    private MimeType contentType = MimeType.TEXT_HTML;
-
-    private Map<String, String> responseHeader = new HashMap<>();
-
-    private ByteArrayOutputStream headerStream = new ByteArrayOutputStream();
-
-    private PrintWriter headerWriter = new PrintWriter(headerStream);
-
-    private ByteArrayOutputStream body = new ByteArrayOutputStream();
-
-    private PrintWriter bodyWriter = new PrintWriter(body, true, StandardCharsets.UTF_8);
+    private ResponseOutputStream outputStream = new ResponseOutputStream();
 
     private Session session;
 
@@ -53,8 +42,6 @@ public class DefaultHttpServeContextInternal implements HttpServeContextInternal
 
     private boolean complete;
 
-    private StatusCode statusCode = StatusCode.OK;
-
     private Map<String, List<String>> paramMap = Collections.emptyMap();
 
     private Map<String, String> pathVarMap = Collections.emptyMap();
@@ -64,6 +51,7 @@ public class DefaultHttpServeContextInternal implements HttpServeContextInternal
     private List<ByteBuffer> bufferList = new ArrayList<>();
 
     private List<Cookie> cookieList = new ArrayList<>();
+
     private String redirectUrl;
 
     private String forwardUrl;
@@ -104,16 +92,16 @@ public class DefaultHttpServeContextInternal implements HttpServeContextInternal
 
     @Override
     public ByteArrayOutputStream getBodyStream() {
-        return body;
+        return null;
     }
 
     @Override
     public ByteArrayOutputStream getHeaderStream() {
-        return headerStream;
+        return null;
     }
 
     public StatusCode getStatusCode() {
-        return statusCode;
+        return outputStream.getStatusCode();
     }
 
     @Override
@@ -155,11 +143,11 @@ public class DefaultHttpServeContextInternal implements HttpServeContextInternal
 
     @Override
     public void setContentType(MimeType mimeType) {
-        this.contentType = mimeType;
+        outputStream.setMimeType(mimeType);
     }
 
     public void setStatusCode(StatusCode statusCode) {
-        this.statusCode = statusCode;
+        outputStream.setStatusCode(statusCode);
     }
 
     public Session getSession() {
@@ -189,6 +177,11 @@ public class DefaultHttpServeContextInternal implements HttpServeContextInternal
     @Override
     public String getQueryString() {
         return queryString;
+    }
+
+    @Override
+    public ResponseOutputStream getOutputStream() {
+        return outputStream;
     }
 
     @Override
@@ -251,7 +244,7 @@ public class DefaultHttpServeContextInternal implements HttpServeContextInternal
 
     @Override
     public MimeType getContentType() {
-        return contentType;
+        return outputStream.getMimeType();
     }
 
 
@@ -272,8 +265,7 @@ public class DefaultHttpServeContextInternal implements HttpServeContextInternal
 
     @Override
     public void setHeader(String name, String value) {
-        headerWriter.println(name + ": " + value);
-        headerWriter.flush();
+        outputStream.setHeader(name, value);
     }
 
 
@@ -304,24 +296,18 @@ public class DefaultHttpServeContextInternal implements HttpServeContextInternal
 
     @Override
     public void write(ByteBuffer buffer) {
-        try {
-            body.write(buffer.array());
-        } catch (IOException ignore) {
-        }
+        outputStream.write(buffer.array());
     }
 
 
     @Override
     public void write(String msg) {
-        bodyWriter.write(msg);
-        bodyWriter.flush();
+        outputStream.write(msg);
     }
 
     @Override
     public void render(String templateName) {
-
     }
-
     @Override
     public String getQuery(String name) {
         return queryMap.get(name);

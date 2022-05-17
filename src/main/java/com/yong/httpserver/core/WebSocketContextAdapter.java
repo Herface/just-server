@@ -25,9 +25,6 @@ public class WebSocketContextAdapter implements ContextAdapter {
 
     private WebSocketParser parser = new WebSocketParser();
 
-
-    private int maxMsgSize = 4096;
-
     private ThreadPoolExecutor executor;
 
     public WebSocketContextAdapter() {
@@ -110,6 +107,7 @@ public class WebSocketContextAdapter implements ContextAdapter {
 
         @Override
         public void run() {
+
             ChannelWrapper channel = context.getChannel();
             Session session = sessionMap.get(channel.id);
             if (context.getMessageType() == WebSocketParser.FRAME_CLOSE) {
