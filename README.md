@@ -1,14 +1,13 @@
-## Simple and easy-to-use java aio based http server
+## Simple and easy-to-use toy http server
 
-## Do not use in a production environment
-
-- ✅ ant-style request dispatching
-- ✅ session/cookie
-- ✅ websocket
-- ✅ filter chain
-- ✅ file uploading
-- ✅ static content serving
-- ❌ http2(coming soon...)
+## Do not use in production environment
+- [x] ant-style request dispatching
+- [x] session/cookie
+- [x] websocket
+- [x] filter chain
+- [x] file uploading
+- [x] static content serving
+- [ ] http2(coming soon...)
 
 ## Requirement
 
