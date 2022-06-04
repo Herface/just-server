@@ -28,8 +28,14 @@ public class WebSocketParser {
 
     public static final byte MASK_LENGTH = 0x7F;
 
+    /**
+     * 消息长度占16位
+     */
     public static final int LENGTH_BITS_16 = 0x7E;
 
+    /**
+     * 消息长度占64位
+     */
     public static final int LENGTH_BITS_64 = 0x7F;
 
     private int maxMsgSize;
@@ -52,6 +58,7 @@ public class WebSocketParser {
             switch (context.getStatus()) {
                 case INIT -> {
                     if ((b & MASK_FIN) == MASK_FIN) {
+                        // 最后一个报文
                         context.setLast(true);
                     }
                     byte messageType = (byte) (b & MASK_OPCODE);
@@ -63,6 +70,7 @@ public class WebSocketParser {
                     if (mask == MASK_FIN) {
                         context.setMasked(true);
                     }
+                    // 消息长度
                     int length = b & MASK_LENGTH;
                     if (length == LENGTH_BITS_16) {
                         context.setLengthInNBytes(2);
@@ -80,13 +88,14 @@ public class WebSocketParser {
                     }
                 }
                 case LENGTH_IN_BYTES -> {
+                    // 消息长度
                     long length = context.getMessageLength();
                     long newLength = (length << 8) | Byte.toUnsignedInt(b);
-
                     if (newLength < length) {
                         throw new RuntimeException("Max message length exceeded");
                     }
                     context.setMessageLength(newLength);
+                    // 消息长度剩余字节数
                     int nBytes = context.getLengthInNBytes();
                     nBytes--;
                     if (nBytes <= 0) {
@@ -113,6 +122,7 @@ public class WebSocketParser {
                 }
                 case MESSAGE -> {
                     stream.write(b);
+                    // 报文解析完毕
                     if (stream.size() >= context.getMessageLength()) {
                         if (context.isLast()) {
                             context.setStatus(WebSocketProcessingStatusEnum.DONE);
@@ -121,7 +131,7 @@ public class WebSocketParser {
                             }
                             return;
                         }
-                        // 准备第二个报文
+                        // 准备第二个报文 一个报文
                         context.setStatus(WebSocketProcessingStatusEnum.INIT);
                     }
                 }
@@ -132,6 +142,11 @@ public class WebSocketParser {
         }
     }
 
+    /**
+     * 掩码运算 获取真实消息
+     *
+     * @param context context
+     */
     private void unmask(WebSocketProcessingContext context) {
         ByteArrayOutputStream stream = context.getMessageStream();
         byte[] bytes = stream.toByteArray();
